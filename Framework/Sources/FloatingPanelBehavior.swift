@@ -37,12 +37,12 @@ class FloatingPanelDefaultBehavior: FloatingPanelBehavior {
         let dy = abs(velocity.dy)
         switch dy {
         case ..<1.0:
-            return 0.6
+            return 0.8
         case 1.0..<velocityThreshold:
             let a = ((dy - 1.0) / (velocityThreshold - 1.0))
-            return TimeInterval(0.6 - (0.2 * a))
+            return TimeInterval(0.5 - (0.3 * a))
         case velocityThreshold...:
-            return 0.4
+            return 0.5
         default:
             fatalError()
         }
