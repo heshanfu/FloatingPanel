@@ -175,11 +175,6 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate, UIScrollViewDelegate
     @objc func handle(panGesture: UIPanGestureRecognizer) {
         log.debug("Gesture >>>>", panGesture)
 
-        let translation = panGesture.translation(in: panGesture.view!.superview)
-        let velocity = panGesture.velocity(in: panGesture.view)
-        let location = panGesture.location(in: panGesture.view)
-
-
         if let scrollView = scrollView {
             switch panGesture {
             case scrollView.panGestureRecognizer:
@@ -187,6 +182,10 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate, UIScrollViewDelegate
                     scrollView.contentOffset.y = scrollView.contentOffsetZero.y
                 }
             case panGesture:
+                let translation = panGesture.translation(in: panGesture.view!.superview)
+                let velocity = panGesture.velocity(in: panGesture.view)
+                let location = panGesture.location(in: panGesture.view)
+
                 if scrollView.frame.contains(location) {
                     log.debug("ScrollView.contentOffset >>>", scrollView.contentOffset)
                     if state == .full {
@@ -201,26 +200,22 @@ class FloatingPanel: NSObject, UIGestureRecognizerDelegate, UIScrollViewDelegate
                         }
                     }
                 }
+
+                log.debug(panGesture.state, ">>>", "{ translation: \(translation), velocity: \(velocity) }")
+
+                switch panGesture.state {
+                case .began:
+                    panningBegan()
+                case .changed:
+                    panningChange(with: translation)
+                case .ended, .cancelled, .failed:
+                    panningEnd(with: translation, velocity: velocity)
+                case .possible:
+                    break
+                }
             default:
                 return
             }
-        }
-
-        log.debug(panGesture.state, ">>>", "{ translation: \(translation), velocity: \(velocity) }")
-
-        switch panGesture.state {
-        case .began:
-            panningBegan()
-        case .changed:
-            if panGesture == self.panGesture {
-                panningChange(with: translation)
-            }
-        case .ended, .cancelled, .failed:
-            if panGesture == self.panGesture {
-                panningEnd(with: translation, velocity: velocity)
-            }
-        case .possible:
-            break
         }
     }
 
